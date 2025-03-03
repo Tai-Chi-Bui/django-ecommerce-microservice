@@ -175,3 +175,19 @@ Key Features:
 }
 
 ```
+
+## 4. Swagger API Documentation
+
+### Goal: Create Swagger API documentation for the API app. Swagger is a tool that allows you to describe, produce, consume, and visualize RESTful web services.
+
+### Steps:
+
+- Install required packages: `pip install drf-yasg`
+- Add 'rest_framework_simplejwt' to INSTALLED_APPS in settings.py
+- Configure JWT settings in settings.py:
+
+```
+
+
+
+```
