@@ -94,109 +94,84 @@ Key Features:
   5. Manage products, categories, and other site content
   6. Monitor user activity and changes
 
-## 3. API Development
+## 3. Serializers and Views for API app
 
-### Goal: Create a comprehensive RESTful API system for the e-commerce platform
+### Goal: Create Serializers and Views for API app. Serializers are for transforming data between different formats, for example from JSON to Python objects and vice versa. Views are for handling API requests and responses.
 
 ### Steps:
 
-- Configured REST Framework settings in settings.py with detailed options:
+- Create Serializers (api/serializers.py)
 
-  ```python
-  REST_FRAMEWORK = {
-    # Requires authentication for all API endpoints unless explicitly allowed
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated'
-    ],
+```
+    from rest_framework import serializers
+    from products.models import Category, Product
 
-    # Configures multiple authentication methods
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',  # For browser clients
-        'rest_framework.authentication.BasicAuthentication',    # For API clients
-        'rest_framework.authentication.TokenAuthentication'     # For mobile apps
-    ],
-
-    # Enables pagination with customizable page size
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
-
-    # Adds versioning support
-    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
-
-    # Configures throttling for API rate limiting
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle'
-    ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/day',
-        'user': '1000/day'
-    },
-
-    # Enables filtering and searching
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend',
-        'rest_framework.filters.SearchFilter',
-        'rest_framework.filters.OrderingFilter',
-    ]
-  }
-  ```
-
-- Created Comprehensive API Views and Serializers:
-
-  - Developed serializers.py in products app with detailed validation:
-
-    ```python
+    # Category Serializer
     class CategorySerializer(serializers.ModelSerializer):
         product_count = serializers.IntegerField(read_only=True)
-        url = serializers.HyperlinkedIdentityField(view_name='category-detail')
 
         class Meta:
             model = Category
-            fields = ['id', 'url', 'name', 'slug', 'description',
-                     'product_count', 'created_at', 'updated_at']
+            fields = ['id', 'name', 'slug', 'description', 'product_count', 'created_at', 'updated_at']
             read_only_fields = ['created_at', 'updated_at']
 
+    # Product Serializer
     class ProductSerializer(serializers.ModelSerializer):
-        category = CategorySerializer(read_only=True)
-        category_id = serializers.PrimaryKeyRelatedField(
-            queryset=Category.objects.all(),
-            write_only=True
-        )
+        category_name = serializers.CharField(source='category.name', read_only=True)
 
         class Meta:
             model = Product
-            fields = ['id', 'name', 'slug', 'category', 'category_id',
-                     'description', 'price', 'stock', 'available',
-                     'created_at', 'updated_at']
+            fields = ['id', 'name', 'slug', 'category', 'category_name', 'description',
+                    'price', 'stock', 'available', 'created_at', 'updated_at']
             read_only_fields = ['created_at', 'updated_at']
-            depth = 1
-    ```
+```
 
-  - Created ViewSets with advanced functionality:
+- Create ViewSets (api/views.py)
 
-    ```python
+```
+    from rest_framework import viewsets, filters
+    from .serializers import CategorySerializer, ProductSerializer
+
     class CategoryViewSet(viewsets.ModelViewSet):
-        queryset = Category.objects.annotate(
-            product_count=Count('products')
-        )
+        queryset = Category.objects.annotate(product_count=Count('products'))
         serializer_class = CategorySerializer
-        permission_classes = [IsAuthenticatedOrReadOnly]
-        filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-        search_fields = ['name', 'description']
-        ordering_fields = ['name', 'created_at', 'product_count']
+        lookup_field = 'slug'
+        # ... other configurations ...
 
     class ProductViewSet(viewsets.ModelViewSet):
-        queryset = Product.objects.select_related('category')
+        queryset = Product.objects.all()
         serializer_class = ProductSerializer
-        permission_classes = [IsAuthenticatedOrReadOnly]
-        filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-        filterset_fields = {
-            'category': ['exact'],
-            'price': ['gte', 'lte'],
-            'available': ['exact'],
-            'created_at': ['gte', 'lte']
-        }
-        search_fields = ['name', 'description']
-        ordering_fields = ['name', 'price', 'created_at', 'stock']
-    ```
+        lookup_field = 'slug'
+    # ... other configurations ...
+```
+
+- Register URLs (api/urls.py)
+
+```
+    from rest_framework import routers
+
+    router = routers.DefaultRouter()
+    router.register(r'categories', views.CategoryViewSet)
+    router.register(r'products', views.ProductViewSet)
+
+    urlpatterns = [
+        path('', include(router.urls)),
+        # ... other urls ...
+    ]
+
+```
+
+- Configure REST framework settings (djangoEcommerce/settings.py)
+
+```
+    REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+    'DEFAULT_FILTER_BACKENDS': [
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
+    # ... other settings ...
+}
+
+```

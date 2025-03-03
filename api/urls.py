@@ -5,6 +5,8 @@ from . import views
 router = routers.DefaultRouter()
 # Register your API routes here
 # Example: router.register(r'products', views.ProductViewSet)
+router.register(r'categories', views.CategoryViewSet)
+router.register(r'products', views.ProductViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
