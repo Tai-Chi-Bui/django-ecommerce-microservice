@@ -184,10 +184,5 @@ Key Features:
 
 - Install required packages: `pip install drf-yasg`
 - Add 'rest_framework_simplejwt' to INSTALLED_APPS in settings.py
-- Configure JWT settings in settings.py:
-
-```
-
-
-
-```
+- Update the main urls.py to include Swagger endpoints
+- Add more detailed API documentation in your ViewSets (api/views.py)
