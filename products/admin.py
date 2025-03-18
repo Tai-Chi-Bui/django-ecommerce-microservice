@@ -39,6 +39,7 @@ class ProductAdmin(admin.ModelAdmin):
     )
 
     def price_display(self, obj):
-        # Format price with 2 decimal places to ensure consistent display
-        return format_html('<span style="color: green;">${:.2f}</span>', float(obj.price))
+        # Convert price to float first, then format the string
+        price_float = float(obj.price)
+        return format_html('<span style="color: green;">${}</span>', f'{price_float:.2f}')
     price_display.short_description = 'Price'
