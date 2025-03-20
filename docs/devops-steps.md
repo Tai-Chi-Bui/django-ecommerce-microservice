@@ -25,4 +25,31 @@ You can verify the current nameservers by running: `whois my-domain.com`
 
 From now on, those Linode nameservers will be the ones handling your domain's DNS records (translating domain names into IP addresses,...). 
 
+4. Create new Linode
+   - Navigate to https://cloud.linode.com/linodes/create
+   - Choose a region close to your target users
+   - Select a plan based on your needs (Shared CPU is fine for most sites)
+   - Choose Arch Linux as the Linux distribution
+   - Set a strong root password or add ssh key for access
+   - Click "Create Linode" and wait for provisioning
+   - Note down the assigned IP address
 
+Right now, you have a running Linode instance. If you run the command `lsblk`, you can see it has a root partition (sda) and a swap partition. For better organization and scalability, we should create additional block storage:
+
+5. Create a new Block Storage Volume:
+   - Go to https://cloud.linode.com/volumes/create
+   - Select the same region as your Linode
+   - Choose desired size (e.g., 20GB)
+   - Attach it to your Linode instance
+   - Note down the device path (e.g., /dev/sdb)
+
+6. Format and mount the new volume:
+
+Follow the formatting and mounting instructions displayed in the Block Storage configuration panel. These commands will typically include:
+- Creating a filesystem on the volume
+- Creating a mount point directory
+- Mounting the volume
+- Adding an entry to /etc/fstab for persistent mounting, so it would survives rebooting
+- run 'lsblk' now and you can see the difference
+
+5. 
