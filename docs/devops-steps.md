@@ -1,8 +1,28 @@
-# Step 1: buy a domain name from a provider (namesilo is recommended)
+# Domain Setup Guide
 
-For example, lets say I bought 'my-domain.com' on namesilo, and if you run 'whois my-domain.com', you will see the name servers as 'NS1.DNSOWL.COM', 'NS2.DNSOWL.COM' and 'NS3.DNSOWL.COM'. Our next step would need to change that name servers to ours on linode.
+## Step 1: Purchase a Domain Name
+1. Choose a domain registrar (NameSilo recommended for competitive pricing and reliability)
+2. Purchase your desired domain name (e.g., 'my-domain.com')
+3. Initially, the domain will use NameSilo's default nameservers:
+   - NS1.DNSOWL.COM
+   - NS2.DNSOWL.COM 
+   - NS3.DNSOWL.COM
 
+You can verify the current nameservers by running: `whois my-domain.com`
 
-# Step 2: create domain on linode
-### Go to: https://cloud.linode.com/domains/create and fill out the creation form (omit the input for inser default records)
+## Step 2: Configure Domain on Linode
+1. Navigate to Linode's domain creation page:
+   https://cloud.linode.com/domains/create
+   
+2. Fill out the domain creation form
+   - Enter your domain name
+   - Leave "Insert Default Records" unchecked
+   
+3. Update Nameservers:
+   - Copy the three Linode nameservers provided for your domain
+   - Go to NameSilo's domain management panel
+   - Replace the default nameservers with Linode's nameservers
+
+From now on, those Linode nameservers will be the ones handling your domain's DNS records (translating domain names into IP addresses,...). 
+
 
