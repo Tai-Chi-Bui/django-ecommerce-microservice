@@ -52,4 +52,80 @@ Follow the formatting and mounting instructions displayed in the Block Storage c
 - Adding an entry to /etc/fstab for persistent mounting, so it would survives rebooting
 - run 'lsblk' now and you can see the difference
 
-5. 
+## Step 5: Install Ansible
+
+1. Create an ansible directory in your project:
+   ```bash
+   cd your-project-path
+   mkdir ansible
+   ```
+
+2. Install Ansible in your virtual environment:
+   ```bash
+   # Activate virtual environment
+   source .venv/Scripts/activate
+   
+   # Install ansible and update requirements
+   pip install ansible
+   pip freeze >> requirements.txt
+   ```
+3. Create ansible.cfg inside /ansible:
+   ```ini
+   [main]
+   black-pig.top
+   ```
+
+4. Create setup.yml inside /ansible:
+   ```yaml
+   - name: Configure server
+     hosts: main
+     become: yes
+     roles:
+       - common
+       - web
+       - db
+   ```
+
+## Step 6: Ansible Roles
+
+1. Create the hostname role directory and tasks:
+   ```bash
+   cd ansible/
+   mkdir -p hostname/tasks
+   touch hostname/tasks/main.yml
+   ```
+
+2. Add the following content to `hostname/tasks/main.yml`:
+   ```yaml
+   - name: Set hostname
+     ansible.builtin.hostname:
+       name: vps.black-pig.com
+       use: systemd
+
+   - name: Configure localhost in /etc/hosts
+     ansible.builtin.hostname:
+       path: /etc/hosts
+       line: 127.0.0.1 localhost.localmain localhost
+
+   - name: Configure VPS hostname in /etc/hosts
+     ansible.builtin.hostname:
+       path: /etc/hosts
+       line: your-linode-ip-address vps.black-pig.com vps
+   ```
+
+3. Update `setup.yml` to include the hostname role:
+   ```yaml
+   - hosts: main
+     roles:
+       - hostname
+   ```
+
+4. Run the playbook from your local machine:
+   ```bash
+   cd /ansible
+   ansible-playbook setup.yml
+   ```
+
+After running the playbook, SSH into your Linode instance and you'll see the hostname has been changed.
+
+Note: It's important to change the hostname from localhost because many services (especially email services) will reject connections from servers using localhost as their hostname.
